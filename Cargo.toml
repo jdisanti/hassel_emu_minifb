@@ -1,0 +1,10 @@
+[package]
+name = "hassel_emu_minifb"
+version = "0.1.0"
+authors = ["John DiSanti <johndisanti@gmail.com>"]
+
+[dependencies]
+minifb = "0.10"
+
+[dependencies.hassel_emu]
+path = "../hassel_emu"
