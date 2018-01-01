@@ -5,6 +5,7 @@ authors = ["John DiSanti <johndisanti@gmail.com>"]
 
 [dependencies]
 minifb = "0.10"
+clap = "2.29"
 
 [dependencies.hassel_emu]
 path = "../hassel_emu"
