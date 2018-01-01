@@ -4,12 +4,11 @@ extern crate minifb;
 
 use hassel_emu::hassel::{GraphicsDevice, HasselSystemBuilder, IODevice, Key, REQUIRED_ROM_SIZE,
                          SCREEN_HEIGHT_PIXELS, SCREEN_WIDTH_PIXELS};
-use hassel_emu::emulator::Emulator;
+use hassel_emu::Cpu;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg};
 use minifb::{Window, WindowOptions};
 
-use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::time::Instant;
@@ -66,7 +65,7 @@ fn main() {
     };
 
     let (memory, graphics, io) = HasselSystemBuilder::new().rom(rom).build();
-    let mut emulator = Emulator::new(memory);
+    let mut emulator = Cpu::new(memory);
     emulator.reset();
 
     if matches.is_present("bench") {
@@ -76,7 +75,7 @@ fn main() {
     }
 }
 
-fn run_mode_benchmark(mut emulator: Emulator) {
+fn run_mode_benchmark(mut emulator: Cpu) {
     let normal_time_seconds = 20;
     let normal_cycles_per_second = 6_000_000;
     let bench_cycles = normal_time_seconds * normal_cycles_per_second;
@@ -99,7 +98,7 @@ fn run_mode_benchmark(mut emulator: Emulator) {
 }
 
 fn run_mode_default(
-    mut emulator: Emulator,
+    mut emulator: Cpu,
     graphics: Rc<RefCell<GraphicsDevice>>,
     io: Rc<RefCell<IODevice>>,
 ) {
@@ -116,7 +115,6 @@ fn run_mode_default(
     let mut time_last_step = Instant::now();
     let mut time_last_render = Instant::now();
 
-    let mut total_cycles: usize = 0;
     let mut previous_keys: Vec<minifb::Key> = Vec::new();
     while window.is_open() {
         let since_last_render = Instant::now().duration_since(time_last_render);
@@ -142,7 +140,6 @@ fn run_mode_default(
         }
 
         let cycles = emulator.step() as u32;
-        total_cycles += cycles as usize;
 
         // Slow down so that we're running at approximately 6 MHz
         loop {
